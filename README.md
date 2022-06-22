@@ -17,3 +17,11 @@ Install:
 
 IMPORTANT: Dont trust me, dont trust anybody. Check the differences (use diff) with the Disney+ code so you can see this is not a fake addon with the porpouse of to stealing users and passwords
 
+------
+NOTES:
+Compare directory
+$ cd .kodi/addons
+$ diff -r plugin.video.star.plus/ slyguy.disney.plus/
+
+I steal this to slyguy www.matthuisman.nz on https://github.com/matthuisman/slyguy.addons
+His repo https://k.slyguy.xyz/.repo/
