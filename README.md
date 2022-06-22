@@ -20,8 +20,8 @@ IMPORTANT: Dont trust me, dont trust anybody. Check the differences (use diff) w
 ------
 NOTES:
 Compare directory
-$ cd .kodi/addons
-$ diff -r plugin.video.star.plus/ slyguy.disney.plus/
+cd .kodi/addons
+diff -r plugin.video.star.plus/ slyguy.disney.plus/
 
 I steal this to slyguy www.matthuisman.nz on https://github.com/matthuisman/slyguy.addons
 His repo https://k.slyguy.xyz/.repo/
