@@ -1,5 +1,6 @@
 import json
 import uuid
+import xbmc as _xbmc
 from time import time
 
 from slyguy import userdata, settings, mem_cache
@@ -163,6 +164,7 @@ class API(object):
 
         data = self._session.post(endpoint, json=payload).json()
         self._check_errors(data)
+        #_xbmc.log(json.dumps(data),3)
         return data['data']['me']
 
     def switch_profile(self, profile_id, pin=None):
@@ -213,14 +215,14 @@ class API(object):
 
         region = session['portabilityLocation']['countryCode'] if session['portabilityLocation'] else session['location']['countryCode']
         maturity = session['preferredMaturityRating']['impliedMaturityRating'] if session['preferredMaturityRating'] else 1850
-        #live_unreated = profile['attributes']['kidsModeEnabled'] if profile else True
+        live_unrated = profile['parentalControls']['liveAndUnratedContent'] if profile else False
         appLanguage = profile['attributes']['languagePreferences']['appLanguage'] if profile else 'en-US'
 
         _args = {
             'apiVersion': API_VERSION,
             'region': region,
             'impliedMaturityRating': maturity,
-            'liveAndUnratedEnabled': 'true',
+            'liveAndUnratedEnabled': 'true' if live_unrated else 'false',
             'appLanguage': appLanguage,
             'partner': BAM_PARTNER,
         }

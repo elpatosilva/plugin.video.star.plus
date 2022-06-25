@@ -26,10 +26,8 @@ def index(**kwargs):
         folder.add_item(label=_(_.LOGIN, _bold=True), path=plugin.url_for(login), bookmark=False)
     else:
         folder.add_item(label=_(_.FEATURED, _bold=True), path=plugin.url_for(collection, slug='home', content_class='home', label=_.FEATURED))
-        folder.add_item(label=_(_.HUBS, _bold=True), path=plugin.url_for(sets, set_id=HUBS_SET_ID, set_type=HUBS_SET_TYPE))
         folder.add_item(label=_(_.MOVIES, _bold=True), path=plugin.url_for(collection, slug='movies', content_class='contentType'))
         folder.add_item(label=_(_.SERIES, _bold=True), path=plugin.url_for(collection, slug='series', content_class='contentType'))
-        folder.add_item(label=_(_.ORIGINALS, _bold=True), path=plugin.url_for(collection, slug='originals', content_class='originals'))
         folder.add_item(label=_(_.SEARCH, _bold=True), path=plugin.url_for(search))
         if settings.getBool('sync_watchlist', False):
             folder.add_item(label=_(_.WATCHLIST, _bold=True), path=plugin.url_for(sets, set_id=WATCHLIST_SET_ID, set_type=WATCHLIST_SET_TYPE))
@@ -39,9 +37,6 @@ def index(**kwargs):
 
         if settings.getBool('bookmarks', True):
             folder.add_item(label=_(_.BOOKMARKS, _bold=True), path=plugin.url_for(plugin.ROUTE_BOOKMARKS), bookmark=False)
-
-        if not userdata.get('kid_lockdown', False):
-            folder.add_item(label=_.SELECT_PROFILE, path=plugin.url_for(select_profile), art={'thumb': userdata.get('avatar')}, info={'plot': userdata.get('profile')}, _kiosk=False, bookmark=False)
 
         folder.add_item(label=_.LOGOUT, path=plugin.url_for(logout), _kiosk=False, bookmark=False)
 
@@ -107,8 +102,6 @@ def hubs(**kwargs):
 
 @plugin.route()
 def select_profile(**kwargs):
-    if userdata.get('kid_lockdown', False):
-        return
 
     _select_profile()
     gui.refresh()
@@ -160,9 +153,6 @@ def _switch_profile(profile):
         pin = gui.input(_.ENTER_PIN, hide_input=True).strip()
 
     api.switch_profile(profile['id'], pin=pin)
-
-    if settings.getBool('kid_lockdown', False) and profile['attributes']['kidsModeEnabled']:
-        userdata.set('kid_lockdown', True)
 
     userdata.set('avatar', profile['_avatar'])
     userdata.set('profile', profile['name'])
@@ -295,12 +285,13 @@ def _get_play_path(content_id):
     return plugin.url_for(play, **kwargs)
 
 def _parse_series(row):
+    #_xbmc.log(json.dumps(row),3)
     item = plugin.Item(
         label = _get_text(row, 'title', 'series'),
         art = _get_art(row),
         info = {
             'plot': _get_text(row, 'description', 'series'),
-            'year': row['releases'][0]['releaseYear'],
+            'year': row['releases'][0]['releaseYear'] if row['releases'] else 'Unknown',
             'mediatype': 'tvshow',
             'trailer': plugin.url_for(play_trailer, series_id=row['encodedSeriesId']),
         },
@@ -320,7 +311,7 @@ def _parse_season(row, series):
         label = title,
         info  = {
             'plot': _get_text(row, 'description', 'season') or _get_text(series, 'description', 'series'),
-            'year': row['releases'][0]['releaseYear'],
+            'year': row['releases'][0]['releaseYear'] if row['releases'] else 'Unknown',
             'season': row['seasonSequenceNumber'],
             'mediatype': 'season',
         },
@@ -329,17 +320,18 @@ def _parse_season(row, series):
     )
 
 def _parse_live(row):
-    title = _get_text(row, 'title', 'program')
+    title = _get_text_full(row, 'title', 'program')
     item = plugin.Item(
         label = title,
         info  = {
             'plot': _get_text(row, 'description', 'program'),
             'mediatype': 'tvshow',
+            'aired': row['startDate'] if row['startDate'] else 'Unknown',
             'trailer': plugin.url_for(play_trailer, family_id=row['family']['encodedFamilyId']),
         },
         art  = _get_art(row),
         path = plugin.url_for(play, family_id=row['family']['encodedFamilyId'], title=title),
-        playable = True,
+        playable = row['mediaMetadata']['state'] == 'ON'
     )
     return item
 
@@ -349,8 +341,8 @@ def _parse_video(row):
         info  = {
             'plot': _get_text(row, 'description', 'program'),
             'duration': row['mediaMetadata']['runtimeMillis']/1000,
-            'year': row['releases'][0]['releaseYear'],
-            'aired': row['releases'][0]['releaseDate'] or row['releases'][0]['releaseYear'],
+            'year': row['releases'][0]['releaseYear'] if row['releases'] else 'Unknown',
+            'aired': (row['releases'][0]['releaseDate']  or row['releases'][0]['releaseYear']) if row['releases'] else 'Unknown',
             'mediatype': 'movie',
             'trailer': plugin.url_for(play_trailer, family_id=row['family']['encodedFamilyId']),
         },
@@ -455,7 +447,27 @@ def _get_art(row):
 
     return art
 
+
 def _get_text(row, field, source):
+    text_list = _get_text_list(row, field, source)
+    if text_list:
+        return sorted(text_list , key=lambda x: x[0])[0][1]
+    else:
+        return None
+
+def _get_text_full(row, field, source):
+    text_list = _get_text_list(row, field, source)
+    if text_list:
+        text = text_list[0][1]
+        for _key in range(len(text_list)-1):
+            text += '|' + text_list[_key+1][1]
+        return text
+    else:
+        return None
+
+        
+
+def _get_text_list(row, field, source):
     if 'text' in row:
         # api 5.1
         texts = row['text']
@@ -485,8 +497,8 @@ def _get_text(row, field, source):
 
     if not candidates:
         return None
-
-    return sorted(candidates, key=lambda x: x[0])[0][1]
+    #_xbmc.log(json.dumps(sorted(candidates, key=lambda x: x[0])[0][1]),3)
+    return candidates
 
 @plugin.route()
 def series(series_id, **kwargs):
@@ -601,16 +613,6 @@ def _play(content_id=None, family_id=None, **kwargs):
     else:
         ver_required = '2.4.5'
 
-    ia = inputstream.Widevine(
-        license_key = api.get_config()['services']['drm']['client']['endpoints']['widevineLicense']['href'],
-        manifest_type = 'hls',
-        mimetype = 'application/vnd.apple.mpegurl',
-        wv_secure = is_wv_secure(),
-    )
-
-    if not ia.check() or not inputstream.require_version(ver_required):
-        gui.ok(_(_.IA_VER_ERROR, kodi_ver=KODI_VERSION, ver_required=ver_required))
-
     if family_id:
         data = api.video_bundle(family_id)
     else:
@@ -623,6 +625,16 @@ def _play(content_id=None, family_id=None, **kwargs):
         live = True
         if not video:
             raise PluginError(_.NO_VIDEO_FOUND)
+
+    ia = inputstream.Widevine(
+        license_key = api.get_config()['services']['drm']['client']['endpoints']['widevineLicense']['href'],
+        manifest_type = 'hls',
+        mimetype = 'application/vnd.apple.mpegurl',
+        wv_secure = is_wv_secure(),
+    )
+
+    if not ia.check() or not inputstream.require_version(ver_required):
+        gui.ok(_(_.IA_VER_ERROR, kodi_ver=KODI_VERSION, ver_required=ver_required))
     
    # _xbmc.log(json.dumps(video), level=3)
 
@@ -739,7 +751,6 @@ def logout(**kwargs):
         return
 
     api.logout()
-    userdata.delete('kid_lockdown')
     userdata.delete('avatar')
     userdata.delete('profile')
     userdata.delete('profile_id')

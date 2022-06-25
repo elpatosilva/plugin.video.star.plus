@@ -1,19 +1,19 @@
-# star.plus
+# plugin.video.star.plus
 Star+ for kodi
 
-The user experience is terrible. Is almost a not usable and incomplete thing.
+Is almost a usable thing.
 
-I takeed a couple of nights tweaking the Disney+ fom slyguy and it kinda work.
+This is a modified version of the Disney+ from slyguy.
 
-I have no time to give it a better try, if you want to continue this work you are welcome.
+I have no time to work on this, if you want to continue this work you are welcome.
 
-Works for Series and Movies, on Featured some things works, really I give it a try for Live events (Destacados/Todo el deporte | VIVO), but is not working, contacts the streaming service but no video, lots of video messages error on log
+Works for Series, Movies and Live events (bellow Featured), on this last one you may need to chose a low bitrate (~3.1Mbit/s) for work propperly
 
 Install:
 - First of all,  Install slyguy repo, and install Disney+ addon (for dependences)
 - Copy this repo to .kodi/addons, on somithing like plugin.video.star.plus
 - Enable the addon on My Addons
-- Go to the addon, make login and suffer this terrible addon where you can even search for nothing
+- Go to the addonx,ing your credentials.
 
 IMPORTANT: Dont trust me, dont trust anybody. Check the differences (use diff) with the Disney+ code so you can see this is not a fake addon with the porpouse of to stealing users and passwords
 
