@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="slyguy.star.plus" name="Star+" provider-name="Slyguy" version="0.11.9">
+<addon id="plugin.video.star.plus" name="Star+" provider-name="Stolen to Slyguy" version="0.11.9">
   <requires>
     <import addon="script.module.slyguy"/>
   </requires>
@@ -7,20 +7,22 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <description lang="en">Star+ is the exclusive home for your favorite movies and TV shows from Disney, Pixar, Marvel, Star Wars, and National Geographic.
+    <description lang="es">Star+  es el hogar exclusivo para tus peliculas y shows de televisión de Disney, Pixar, Marvel, Star Wars, National Geographica and ESPN.
+
+Se requiere suscripción.</description>
+    <description lang="en">Star+ is the exclusive home for your favorite movies and TV shows from Disney, Pixar, Marvel, Star Wars, National Geographica and ESPN.
 
 Subscription required.</description>
-    <description lang="it">Star+ è la casa esclusiva per i tuoi film e programmi TV preferiti di Disney, Pixar, Marvel, Star Wars e National Geographic.
+    <description lang="it">Star+ è la casa esclusiva per i tuoi film e programmi TV preferiti di Disney, Pixar, Marvel, Star Wars, National Geographice ESPN.
 
 Abbonamento richiesto.</description>
-    <description lang="fr">Star+ est la destination exclusive de vos films et séries TV préférés des univers Disney, Pixar, Marvel, Star Wars et National Geographic.
+    <description lang="fr">Star+ est la destination exclusive de vos films et séries TV préférés des univers Disney, Pixar, Marvel, Star Wars, National Geographic et ESPN.
 
 Abonnement requis.</description>
     <reuselanguageinvoker>true</reuselanguageinvoker>
     <license></license>
     <language></language>
     <website></website>
-    <news>Add Dutch language. Thanks @djdirty60</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
